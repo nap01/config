@@ -1,0 +1,823 @@
+# Enviroment Variables (a.k.a. Script Settings)
+export HOSTNAME="fedora"
+export 
+
+# system tweaks
+## label user additions to ~/.bashrc
+```
+echo "" && echo '# user additions' >> ~/.bashrc
+```
+ 
+## turn of dnf-makecache.timer
+This module updates metadata to speed up dnf commands. 
+
+Turn it off to avoid unecessary bandwidth use at bad times.
+ 
+```
+systemctl disable dnf-makecache.timer
+```
+
+# speed up dnf
+```
+echo 'fastestmirror=1' | sudo tee -a /etc/dnf/dnf.conf
+echo 'max_parallel_downloads=10' | sudo tee -a /etc/dnf/dnf.conf
+echo 'deltarpm=true' | sudo tee -a /etc/dnf/dnf.conf
+cat /etc/dnf/dnf.conf
+```
+
+# wayland or xorg
+```
+# sudo nano /etc/gdm/custom.conf
+# [daemon]
+# WaylandEnable=false
+# DefaultSession=gnome-xorg.desktop
+```
+
+# nvidia
+If you have an nvida graphics card, unccomment the following:
+
+```
+#modinfo -F version nvidia
+#sudo dnf update -y # and reboot if you are not on the latest kernel
+#sudo dnf install -y akmod-nvidia # rhel/centos users can use kmod-nvidia instead
+#sudo dnf install -y xorg-x11-drv-nvidia-cuda #optional for cuda/nvdec/nvenc support
+#sudo dnf install -y xorg-x11-drv-nvidia-cuda-libs
+#sudo dnf install -y vdpauinfo libva-vdpau-driver libva-utils
+#sudo dnf install -y vulkan
+#modinfo -F version nvidia
+```
+
+# set hostname
+The following sets the hostname of the system:
+
+```
+hostnamectl set-hostname $HOSTNAME
+```
+
+# check locales
+If things look wrong, see the help file on the two commands or change locales and timezone in Gnome-Settings.
+
+```
+localectl status
+timedatectl
+```
+
+# btrfs filesystem optimizations
+
+Fedora has not optimized the mount options for btrfs yet. I have found that there is some general agreement on the following mount options if you are on a SSD or NVME:
+
+- ssd: use SSD specific options for optimal use on SSD and NVME
+- noatime: prevent frequent disk writes by instructing the Linux kernel not to store the last access time of files and folders
+- space_cache: allows btrfs to store free space cache on the disk to make caching of a block group much quicker
+- commit=120: time interval in which data is written to the filesystem (value of 120 is taken from Manjaro’s minimal iso)
+- compress=zstd: allows to specify the compression algorithm which we want to use. btrfs provides lzo, zstd and zlib compression algorithms. Based on some Phoronix test cases, zstd seems to be the better performing candidate.
+- discard=async: Btrfs Async Discard Support Looks To Be Ready For Linux 5.6
+
+So add these options to your btrfs subvolume mount points in your fstab:
+
+```
+sudo nano /etc/fstab
+# UUID=47faf958-b80a-43e1-a36f-ca5a932474f7 /                       btrfs   subvol=root,x-systemd.device-timeout=0,ssd,noatime,space_cache=v2,commit=120,compress=zstd,discard=async 0 0
+# UUID=04ae92cd-717c-4aaf-bb24-58001be8d334 /boot                   ext4    defaults        1 2
+# UUID=C17B-722D                            /boot/efi               vfat    umask=0077,shortname=winnt 0 2
+# UUID=47faf958-b80a-43e1-a36f-ca5a932474f7 /home                   btrfs   subvol=home,x-systemd.device-timeout=0,ssd,noatime,space_cache=v2,commit=120,compress=zstd,discard=async 0 0
+# UUID=47faf958-b80a-43e1-a36f-ca5a932474f7 /btrfs_pool             btrfs   subvolid=5,x-systemd.device-timeout=0,ssd,noatime,space_cache=v2,commit=120,compress=zstd,discard=async 0 0
+sudo mkdir -p /btrfs_pool
+sudo mount -a
+```
+
+Note that I also add a mountpoint for the btrfs root filesystem (this has always id 5) for easy access of all my subvolumes in /btrfs_pool.
+
+You would need to restart to make use of the new options.
+
+I usually first run updates and restart prior to restoring my backups, such that my restored files are using the optimized mount options such as compression.
+
+
+Furthermore, as I am using btrfs discard support, let’s check whether the discard option is passed on in /etc/crypttab (as I am using LUKS to encrypt my drives):
+
+```
+sudo nano /etc/crypttab
+# luks-fcc669e7-32d5-43b2-ba03-2db6a7f5b33d UUID=fcc669e7-32d5-43b2-ba03-2db6a7f5b33d none discard
+```
+
+As both fstrim and discard=async mount option can peacefully co-exist, I also enable fstrim.timer:
+
+```
+sudo systemctl enable fstrim.timer
+```
+
+# Install updates and reboot
+```
+sudo dnf upgrade --refresh
+sudo dnf check
+sudo dnf autoremove
+sudo fwupdmgr get-devices
+sudo fwupdmgr refresh --force
+sudo fwupdmgr get-updates
+sudo fwupdmgr update
+sudo reboot now
+```
+
+# Gnome Extensions and Tweaks
+Install the extensions app, Gnome Tweaks, and some extensions:
+
+```
+sudo dnf install -y gnome-extensions-app gnome-tweaks
+sudo dnf install -y gnome-shell-extension-appindicator
+```
+
+In Gnome Tweaks make the following changes:
+
+-  Disable “Suspend when laptop lid is closed” in General
+-  Disable “Activities Overview Hot Corner” in Top Bar
+-  Enable “Weekday” and “Date” in “Top Bar”
+-  Enable Battery Percentage (also possible in Gnome Settings - Power)
+- Check Autostart programs
+
+# Pop theme
+I love the experience and theming of Gnome in Pop!_OS, so I make Fedora look and behave similarly.
+
+## Install Pop-Shell Tiling Extension
+```
+sudo dnf install -y gnome-shell-extension-pop-shell
+reboot
+```
+
+Reboot (or just logout/login), then activate it in the Extensions App (I usually don’t activate Native Window Placement) and you get an icon in your system tray.
+
+Turn on Tiling by clicking on the icon.
+
+Note that this will overwrite several Keyboard shortcuts, which is for me a good thing as I am quite used to the shortcuts in Pop!_OS.
+
+If you want to be able to view these shortcuts in the icon in the tray, run the following:
+
+## Pop shell keyboard shortcuts
+```
+sudo dnf install -y make cargo rust gtk3-devel
+git clone https://github.com/pop-os/shell-shortcuts /home/$USER/fedora/pop-theme/shell-shortcuts
+cd /home/$USER/fedora/pop-theme/shell-shortcuts
+make
+sudo make install
+pop-shell-shortcuts
+```
+
+## Pop GTK theme
+The following installs the Pop!_OS GTK theme:
+
+```
+sudo dnf install -y sassc meson glib2-devel
+git clone https://github.com/pop-os/gtk-theme /home/$USER/fedora/pop-theme/gtk-theme
+cd /home/$USER/fedora/pop-theme/gtk-theme
+meson build && cd build
+ninja
+sudo ninja install
+```
+
+```
+gsettings set org.gnome.desktop.interface gtk-theme "Pop"
+```
+
+## Pop icon theme
+The following installs the Pop!_OS icon theme:
+
+```
+git clone https://github.com/pop-os/icon-theme /home/$USER/fedora/pop-theme/icon-theme
+cd /home/$USER/fedora/pop-theme/icon-theme
+meson build
+sudo ninja -C "build" install
+```
+
+```
+gsettings set org.gnome.desktop.interface icon-theme "Pop"
+gsettings set org.gnome.desktop.interface cursor-theme "Pop"
+```
+
+## Pop fonts
+For fonts, install via dnf
+
+```
+sudo dnf install -y fira-code-fonts 'mozilla-fira*' 'google-roboto*'
+```
+
+Then go into Gnome Tweaks and make the following changes in Fonts:
+
+- Interface Text: Fira Sans Book 10
+- Document Text: Roboto Slab Regular 11
+- Monospace Text: Fira Mono Regular 11
+- Legacy Window Titles: Fira Sans SemiBold 10
+- Hinting: Slight
+- Antialiasing: Standard (greyscale)
+- Scaling Factor: 1.00
+
+## Pop Gnome Terminal Theme
+Open gnome-terminal, go to Preferences and change the Theme variant to Default in the Global tab.
+
+Then create a new Profile called Pop with the following settings:
+- Text
+  - Custom font: Fira Mono 12
+  - Deactivate Terminal bell
+- Colors
+  - Deactivate Use colors from system theme
+  - Built-in schemes: Custom
+  - Default color: Text #F2F2F2 | Background: #333333
+  - Bold color (unchecked) #73C48F
+  - Cursor color (checked): Text #49B9C7 | Background: #F6F6F6
+  - Highlight color (checked): Text #FFFFFF | Background: #48B9C7
+  - Uncheck Transparend background
+  - Palette colors:
+    - 0: #333333 1: #CC0000 2: #4E9A06 3: #C4A000 4: #3465A4 5: #75507B 6: #06989A 7: #D3D7CF
+    - 8: #88807C 9: #F15D22 10: #73C48F 11: #FFCE51 12: #48B9C7 13: #AD7FA8 14: #34E2E2 15: #EEEEEC
+  - Uncheck Show bold text in bright colors
+
+Right click on the Pop profile and set as default.
+
+Lastly, we need to append some things to PS1 in our .bashrc to get the green prompt and some other neat colors in the terminal. 
+
+Mine looks like this:
+
+```
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+# User specific environment
+if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]
+then
+    PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+fi
+export PATH
+
+# Uncomment the following line if you don't like systemctl's auto-paging feature:
+# export SYSTEMD_PAGER=
+
+# User specific aliases and functions
+
+# set a fancy prompt (non-color, unless we know we "want" color)
+case "$TERM" in
+    xterm-color|*-256color) color_prompt=yes;;
+esac
+
+# uncomment for a colored prompt, if the terminal has the capability; turned
+# off by default to not distract the user: the focus in a terminal window
+# should be on the output of commands, not on the prompt
+#force_color_prompt=yes
+
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+	# We have color support; assume it's compliant with Ecma-48
+	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+	# a case would tend to support setf rather than setaf.)
+	color_prompt=yes
+    else
+	color_prompt=
+    fi
+fi
+
+if [ "$color_prompt" = yes ]; then
+    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='\u@\h:\w\$ '
+fi
+unset color_prompt force_color_prompt
+
+# If this is an xterm set the title to user@host:dir
+case "$TERM" in
+xterm*|rxvt*)
+    PS1="\[\e]0;\u@\h: \w\a\]$PS1"
+    ;;
+*)
+    ;;
+esac
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+```
+
+# Additional Repositories
+Enable third party repositories by going into Software -> Software Repositories -> Third Party Repositories -> Enable All.
+
+Go through the list and enable all the repositories I think I need such as RPM Fusion NVIDIA Driver.
+
+Then run:
+
+```
+sudo dnf install -y  https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+```
+
+## To enable the RPM Fusion free and nonfree repositories, run:
+```
+sudo dnf upgrade --refresh
+sudo dnf groupupdate core
+sudo dnf install -y rpmfusion-free-release-tainted
+sudo dnf install -y dnf-plugins-core
+```
+
+Checkout `sudo dnf grouplist -v` to see available groups you might be interested in.
+
+## Flatpak support
+Flatpak is installed by default on Fedora Workstation, but one needs to enable the Flathub store:
+
+```
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak update
+```
+
+## Snap support
+Enabling snap support boils down to running the following commands:
+
+```
+sudo dnf install -y snapd
+sudo ln -s /var/lib/snapd/snap /snap # for classic snap support
+sudo reboot now
+```
+
+# Restore from Backup
+I mount my LUKS encrypted backup storage drive using nautilus (simply click on it in the file manager). Then let’s use rsync to copy over my files and important configuration scripts:
+
+```
+export BACKUP=/run/media/$USER/NAME_OR_UUID_BACKUP_DRIVE/@home/$USER/
+sudo rsync -avuP $BACKUP/Desktop ~/
+sudo rsync -avuP $BACKUP/Documents ~/
+sudo rsync -avuP $BACKUP/Downloads ~/
+sudo rsync -avuP $BACKUP/Music ~/
+sudo rsync -avuP $BACKUP/Pictures ~/
+sudo rsync -avuP $BACKUP/Templates ~/
+sudo rsync -avuP $BACKUP/Videos ~/
+sudo rsync -avuP $BACKUP/.ssh ~/
+sudo rsync -avuP $BACKUP/.gnupg ~/
+
+sudo rsync -avuP $BACKUP/.local/share/applications ~/.local/share/
+sudo rsync -avuP $BACKUP/.gitconfig ~/
+sudo rsync -avuP $BACKUP/.gitkraken ~/
+sudo rsync -avuP $BACKUP/.config/Nextcloud ~/.config/
+
+sudo rsync -avuP $BACKUP/dynare ~/
+sudo rsync -avuP $BACKUP/.dynare ~/
+sudo rsync -avuP $BACKUP/Images ~/
+sudo rsync -avuP $BACKUP/SofortUpload ~/
+sudo rsync -avuP $BACKUP/Work ~/
+sudo rsync -avuP $BACKUP/Zotero ~/
+sudo rsync -avuP $BACKUP/MATLAB ~/
+sudo rsync -avuP $BACKUP/.matlab ~/
+
+sudo chown -R $USER:$USER /home/$USER # make sure I own everything
+```
+
+# SSH keys
+If I want to create a new SSH key, I run e.g.:
+
+```
+ssh-keygen -t ed25519 -C "fedora-on-$HOSTNAME"
+```
+
+Usually, however, I restore my .ssh folder from my backup (see above).
+
+Either way, afterwards, one needs to add the file containing your key, usually id_rsa or id_ed25519, to the ssh-agent:
+
+```
+eval "$(ssh-agent -s)" #works in bash
+eval (ssh-agent -c) #works in fish
+ssh-add ~/.ssh/id_ed25519
+```
+
+Don’t forget to add your public key to GitHub, Gitlab, Servers, etc.
+
+## Codecs and Libraries
+This one is needed to watch youtube videos
+
+```
+sudo dnf install ffmpeg-libs 
+```
+
+# Apps
+## Browser
+Firefox
+
+I used to use Firefox for almost all of my browsing which is installed by default with the following:
+
+- Extensions
+  - Bitwarden
+  - Disable HTML5 Autoplay
+  - GNOME Shell-Integration
+  - HTTPS Everywhere
+  - uBlock Origin
+- Plugins
+  - OpenH264-Videocodec
+  - Widevine Content Decryption Module
+- Theme: firefox-gnome-theme:
+
+```
+git clone https://github.com/rafaelmardojai/firefox-gnome-theme/ /home/$USER/fedora/firefox-gnome-theme
+cd /home/$USER/fedora/firefox-gnome-theme
+./scripts/install.sh
+```
+
+### Vivaldi
+
+I am in the process of switching to Vivaldi:
+
+```
+sudo dnf install -y dnf-utils
+sudo dnf config-manager --add-repo https://repo.vivaldi.com/archive/vivaldi-fedora.repo
+sudo dnf install -y vivaldi-stable
+
+```
+
+I use the following Extensions installable from the Chrome store:
+
+- Bitwarden
+- GNOME Shell-Integration
+- uBlock Origin
+
+### Google Chrome
+
+If I ever need Google Chrome, then I enable the repo in the software manager and install it via the software shop.
+Profile
+
+### Profile-sync-daemon
+This neat little utility improves your browsing experience:
+
+```
+sudo dnf install -y profile-sync-daemon
+psd
+# First time running psd so please edit /home/$USER/.config/psd/psd.conf to your liking and run again
+nano /home/$USER/.config/psd/psd.conf
+# Close your browser now
+systemctl --user enable psd.service
+systemctl --user start psd.service
+systemctl --user status psd.service
+psd preview
+```
+
+
+## System utilities
+### Flatseal
+Flatseal is a great tool to check or change the permissions of your flatpaks:
+
+```
+flatpak install -y flatseal
+```
+
+### Timeshift
+
+
+### Virtual machines: Quickemu and other stuff
+
+Fedora by default has KVM, Qemu, virt-manager and gnome-boxes set up; however, I have found a much easier tool for most virtualization tasks: Quickqemu, a wrapper for Qemu that we will load into our path to ab able to run it's scripts anywhere:
+
+```
+git clone --filter=blob:none https://github.com/wimpysworld/quickemu /home/$USER/fedora/quickemu
+cd /home/$USER/fedora/quickemu
+
+sudo dnf install qemu bash coreutils edk2-tools grep jq lsb procps python3 genisoimage usbutils util-linux sed spice-gtk-tools swtpm wget xdg-user-dirs xrandr unzip
+
+mkdir -p /home/$USER/.local/bin
+ln -s /home/$USER/fedora/quickemu/quickemu /home/$USER/.local/bin/quickemu
+```
+
+I keep the conf files for my virtual machines on an external SSD.
+
+## Networking
+
+### Dropbox
+
+Unfortunately, I still have some use case for Dropbox:
+
+```
+sudo dnf install -y dropbox nautilus-dropbox
+```
+
+Open dropbox and set it up, check options.
+
+### Nextcloud
+
+I have all my files synced to my own Nextcloud server, so I need the sync client:
+
+```
+sudo dnf install -y nextcloud-client nextcloud-client-nautilus
+```
+
+Open Nextcloud and set it up. Recheck options and note to ignore hidden files once the first folder sync is set up.
+
+I get two anoying issues with Nextcloud, which will probably be fixed in the future. For now the following works for me:
+
+If you have many subfolders (which I do), there are not enough inotify-watches and Nextcloud does not sync instantenously but only periodically.
+
+This can be solved by:
+
+```
+sudo -i
+echo 'fs.inotify.max_user_watches = 524288' >> /etc/sysctl.conf
+sysctl -p
+```
+
+The same issue happens with Visual Studio Code and the aforementioned workaround is taken from their instructions page (https://code.visualstudio.com/docs/setup/linux#_visual-studio-code-is-unable-to-watch-for-file-changes-in-this-large-workspace-error-enospc).
+
+
+If you use X11 instead of Wayland, the app indicator icon does not show if I enable autostart of Nextcloud in its settings menu.
+
+The problem is, that while the nextcloud client is actually running after being autostarted, there is no tray icon (I use the ‘KStatusNotifierItem/AppIndicator Support’ extension). Whereas, if I start the client manually after logging in (without autostart or after killing the autostarted instance), the icon is there.
+
+For anyone experiencing this issue the workaround is to delay the autostart.
+
+That is, make the following changes to the .desktop file which resides in the subdirectory ~/.config/autostart of the users home directory:
+
+```
+nano /home/$USER/.config/autostart/com.nextcloud.desktopclient.nextcloud.desktop 
+# [Desktop Entry]
+# Categories=Utility;X-SuSE-SyncUtility;
+# Type=Application
+# Exec=bash -c 'sleep 5 && nextcloud'
+# Name=Nextcloud desktop sync client
+# Comment=Nextcloud desktop synchronization client
+# GenericName=Folder Sync
+# Icon=Nextcloud
+# Keywords=Nextcloud;syncing;file;sharing;
+# X-GNOME-Autostart-Delay=3
+```
+
+What it does is simply waiting 3+5 seconds before launching the client.
+
+Your mileage may vary - perhaps you need to give it more time if your startup takes longer than mine.
+
+
+Alternatively, you might install TopIcons Plus Gnome Extension in addition to the KStatusNotifierItem/AppIndicator Support Extension.
+
+I set the ‘Icon size’ to 18 in the settings of TopIcons Plus, the ‘Tray horizontal alignment’ to ‘Right’ and ‘Tray offset’ to 1, see also Mattermost.
+
+### OpenConnect and OpenVPN
+
+```
+sudo dnf install -y openconnect NetworkManager-openconnect NetworkManager-openconnect-gnome
+sudo dnf install -y openvpn NetworkManager-openvpn NetworkManager-openvpn-gnome
+```
+
+Go to Settings-Network-VPN and add openconnect for my university VPN and openvpn for ProtonVPN, check connections.
+
+### Remote desktop
+To access a remote Windows desktop session:
+
+```
+sudo dnf install -y rdesktop
+echo "rdesktop -g 1680x900 wiwi-farm.uni-muenster.de -r disk:home=/home/$USER/ -u "WIWI\w_muts01" &" > ~/wiwi.sh
+chmod +x wiwi.sh
+cat <<EOF > ~/.local/share/applications/wiwi.desktop
+[Desktop Entry]
+Name=WIWI Terminal Server
+Comment=WIWI Terminal Server wiwi-farm
+Keywords=WIWI;RDP;
+Exec=/home/$USER/wiwi.sh
+Icon=preferences-desktop-remote-desktop
+Terminal=false
+MimeType=application/x-remote-connection;x-scheme-handler/vnc;
+Type=Application
+StartupNotify=true
+Categories=Network;RemoteAccess;
+EOF
+```
+
+Note that this also adds a shortcut to the menu.
+### Torrent - Transmission
+sudo dnf -y install transmission
+
+## Coding
+git and git-lfs are very important tools for me; as a GUI I like to use GitKraken:
+
+```
+sudo dnf install -y git git-lfs
+git-lfs install
+flatpak install -y gitkraken
+```
+
+The flatpak version of GitKraken works perfectly.
+
+Open GitKraken and set up Accounts and Settings (or restore from Backup see above).
+
+Note that for the flatpak version, one needs to add the following Custom Terminal Command: `flatpak-spawn --host gnome-terminal %d` to be able to open the repository quickly in the terminal.
+
+### install asdf version manager
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.1
+echo '# initialize asdf' >> ~/.bashrc && '. "$HOME/.asdf/asdf.sh"' >> ~/.bashrc
+echo '# initialize asdf autocompletions' >> ~/.bashrc && '. "$HOME/.asdf/completions/asdf.bash"' >> ~/.bashrc
+
+### python
+### install dependencies
+sudo dnf groupinstall "Development Tools"
+sudo dnf install python3-devel openssl-devel zlib-devel bzip2-devel sqlite-devel libffi-devel
+### install python via asdf
+
+## Productivity
+sudo snap install superproductivity
+
+## Text-processing
+
+### R
+
+For teaching and data analysis there is nothing better than R and RStudio:
+
+```
+sudo dnf install -y R rstudio-desktop
+```
+
+Open rstudio, set it up to your liking.
+
+### Java via Openjdk
+
+Install the default OpenJDK Runtime Environment:
+
+```
+sudo dnf install -y java-latest-openjdk
+java -version
+```
+
+### Visual Studio Code
+
+I am in the process of transitioning all my coding to Visual Studio code:
+
+```
+sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
+sudo dnf check-update
+sudo dnf install -y code
+```
+
+I sync my settings and extensions inside VScode. Similar to Nextcloud there is an error labeled “Visual Studio Code is unable to watch for file changes in this large workspace” (error ENOSPC) which has to do with the limit of inotify. The workaround (if you haven’t done so already) is to run:
+
+```
+sudo -i
+echo 'fs.inotify.max_user_watches = 524288' >> /etc/sysctl.conf
+sysctl -p
+```
+
+The same issue happens with Nextcloud.
+
+## Text-processing
+### Hugo
+
+My website uses the Academic Template for Hugo, which is based on Go. As I need the extended version I don’t install hugo from the repo, but instead download the official release binary from Github:
+
+```
+sudo dnf install -y golang #dependency I need
+```
+```
+export HUGOVER=`curl --silent "https://api.github.com/repos/gohugoio/hugo/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")'`
+wget https://github.com/gohugoio/hugo/releases/download/v${HUGOVER:1}/hugo_extended_${HUGOVER:1}_Linux-64bit.tar.gz
+tar -xvf hugo_extended_${HUGOVER:1}_Linux-64bit.tar.gz hugo
+rm hugo_extended_${HUGOVER:1}_Linux-64bit.tar.gz
+mv hugo ~/.local/bin/hugo
+hugo version
+```
+
+### Latex related packages
+
+I write all my papers and presentations with Latex using either TexStudio or VScode as editors:
+
+```
+sudo dnf install -y texlive-scheme-full
+sudo dnf install -y texstudio
+```
+
+Open texstudio and set it up.
+
+### Microsoft Fonts
+
+Sometimes I get documents which require fonts from Microsoft:
+
+```
+sudo dnf install -y curl cabextract xorg-x11-font-utils fontconfig
+sudo rpm -i https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
+```
+
+### Zotero
+
+Zotero is great to keep track of the literature I use in my research and teaching. I install it via a flatpak:
+
+flatpak install -y zotero
+
+Open zotero, log in to account, install extension better-bibtex and sync.
+
+## Communication
+### Mattermost
+
+Mattermost, an open-source slack-alternative, can be installed via flatpak:
+
+```
+flatpak install -y Mattermost
+```
+
+Unfortunately, I still have an issue with the tray icon as it is only shown when turning the KStatusNotifierItem/AppIndicator Support Extension off and on again.
+
+However, what works for me is to additionally install the TopIcons Plus Gnome Extension.
+
+I set the ‘Icon size’ to 18 in the settings of TopIcons Plus, the ‘Tray horizontal alignment’ to ‘Right’ and ‘Tray offset’ to 1.
+
+
+### Skype
+
+Skype can be installed either via snap or flatpak. I find the flatpak version works better with the system tray icons:
+
+flatpak install -y skype
+
+Open skype, log in and set up audio and video.
+Zoom
+
+Zoom can be installed either via snap or flatpak. I find the flatpak version works better with the system tray icons:
+
+flatpak install -y zoom
+
+Open zoom, log in and set up audio and video.
+### Signal
+flatpak install org.signal.Signal
+
+## Multimedia
+### VLC
+
+The best video player:
+
+sudo dnf install -y vlc
+
+Open it and check whether it works.
+Multimedia Codecs
+
+If you have VLC installed, you should be fine as it has builtin support for all relevant audio and video codecs. In other cases, I have found that the following commands install all required stuff for Audio and Video:
+
+```
+sudo dnf groupupdate sound-and-video
+sudo dnf install -y libdvdcss
+sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,ugly-\*,base} gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel ffmpeg gstreamer-ffmpeg 
+sudo dnf install -y lame\* --exclude=lame-devel
+sudo dnf group upgrade --with-optional Multimedia
+```
+
+For OpenH264 in Firefox I run:
+
+```
+sudo dnf config-manager --set-enabled fedora-cisco-openh264
+sudo dnf install -y gstreamer1-plugin-openh264 mozilla-openh264
+```
+
+Afterwards you need to open Firefox, go to menu → Add-ons → Plugins and enable OpenH264 plugin.
+You can do a simple test whether your H.264 works in RTC on this page (check Require H.264 video).
+
+### OBS
+
+I like that the snap version has all popular extensions included, so I use it:
+
+```
+sudo snap install obs-studio --edge
+sudo snap connect obs-studio:audio-record
+sudo snap connect obs-studio:avahi-control
+sudo snap connect obs-studio:camera
+sudo snap connect obs-studio:jack1
+sudo snap connect obs-studio:joystick
+sudo snap connect obs-studio:removable-media
+```
+
+Open OBS and set it up, import your scenes, etc.
+
+#    Gnome Settings
+
+    Set up Wifi, Ethernet and VPN
+    Turn off bluetooth
+    Change wallpaper
+    Automatically delete recent files and trash
+    Turn of screen after 15 min
+    Turn on night mode
+    Add online account for Nextcloud and Fedora
+    Deactivate system sounds, mute mic
+    Turn of suspend, shutdown for power button
+    Turn on natural scrolling for mouse touchpad
+    Go through keyboard shortcuts and adapt, I also add custom ones:
+        xkill on CTRL+ALT+X
+        gnome-terminal on CTRL+ALT+T
+    Change clock to 24h format
+    Display battery as percentage
+    Check your default programs
+
+#    Other stuff
+    Bookmarks for netdrives: Using CTRL+L in nautilus, I can open the following links inside nautilus and add bookmarks to these drives for easy access:
+        university netdrive: davs://w_muts01@wiwi-webdav.uni-muenster.de/
+        university cluster sftp://w_muts01@palma2c.uni-muenster.de
+        personal homepage sftp://mutschler.eu
+    Reorder Favorites: I like to reorder the favorites on the gnome launcher (when one hits the SUPER) key
+    Go through all programs: Hit META+A and go through all programs, decide whether you need them or uninstall these
+    Check autostart programs in Gnome Tweaks
+    In the file manager preferences I enable “Sort folders before files
+    Click on the clock and set the location for your weather forecast
+
+
+
+
