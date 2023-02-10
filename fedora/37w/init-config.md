@@ -13,10 +13,36 @@ export BACKUP=/run/media/$USER/[NAME_OR_UUID_BACKUP_DRIVE]/@home/$USER/
 
 ## system tweaks
 
-### label user additions to ~/.bashrc
+### Security
+
+#### SSH Public/Private Keys
 
 ```bash
-echo "" && echo '# user additions' >> ~/.bashrc
+ssh-keygen -t ed25519
+```
+
+#### Create SSH Group For AllowGroups
+
+```bash
+sudo groupadd sshusers
+
+sudo usermod -a -G sshusers $USERNAME
+```
+
+#### Secure /etc/ssh/sshd_config
+
+#### Remove Short Diffie-Hellman Keys
+
+#### 2FA/MFA for SSH
+
+#### Limit Who Can Use sudo
+
+#### Limit Who Can Use su
+
+### label start of user additions to ~/.bashrc
+
+```bash
+echo "" && echo '##### start of user additions #####' >> ~/.bashrc
 ```
 
 ### turn of dnf-makecache.timer
@@ -380,22 +406,6 @@ sudo dnf install -y snapd
 sudo ln -s /var/lib/snapd/snap /snap # for classic snap support
 sudo reboot now
 ```
-
-## Security
-
-### SSH Public/Private Keys
-
-### Create SSH Group For AllowGroups
-
-### Secure /etc/ssh/sshd_config
-
-### Remove Short Diffie-Hellman Keys
-
-### 2FA/MFA for SSH
-
-### Limit Who Can Use sudo
-
-### Limit Who Can Use su
 
 ## Restore from Backup
 
