@@ -1,5 +1,7 @@
 # Fedora 37 Workstation Config Script
 
+This is a procedure document and bash script to configure Fedora 37 Workstation.
+
 ## Enviroment Variables (a.k.a. Script Settings)
 
 ```bash
@@ -801,7 +803,7 @@ To check whether it was installed properly:
 Install the default OpenJDK Runtime Environment:
 
 ```bash
-#asdf plugin add java - optionally install java-asdf plugin 
+#asdf plugin add java #   optionally install java-asdf plugin 
 sudo dnf install -y java-latest-openjdk
 java -version
 ```
