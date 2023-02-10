@@ -1,4 +1,5 @@
 # Fedora 37 Workstation Config Script
+
 ## Enviroment Variables (a.k.a. Script Settings)
 
 ```bash
@@ -34,7 +35,9 @@ echo 'max_parallel_downloads=10' | sudo tee -a /etc/dnf/dnf.conf
 echo 'deltarpm=true' | sudo tee -a /etc/dnf/dnf.conf
 cat /etc/dnf/dnf.conf
 ```
+
 ## graphics
+
 ### wayland or xorg
 
 ```bash
@@ -619,7 +622,7 @@ What it does is simply waiting 3+5 seconds before launching the client.
 
 Your mileage may vary - perhaps you need to give it more time if your startup takes longer than mine.
 
-Alternatively, you might install TopIcons Plus Gnome Extension in addition to the KStatusNotifierItem/AppIndicator Support Extension. 
+Alternatively, you might install TopIcons Plus Gnome Extension in addition to the KStatusNotifierItem/AppIndicator Support Extension.
 
 I set the ‘Icon size’ to 18 in the settings of TopIcons Plus, the ‘Tray horizontal alignment’ to ‘Right’ and ‘Tray offset’ to 1, see also Mattermost.
 
@@ -823,8 +826,6 @@ sysctl -p
 ```
 
 The same issue happens with Nextcloud.
-
-### Text-processing
 
 #### Hugo
 
