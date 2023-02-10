@@ -1,6 +1,8 @@
 # Enviroment Variables (a.k.a. Script Settings)
 export HOSTNAME="fedora"
-export 
+export USERNAME="aidan"
+export GITHUB_USERNAME="nap01" 
+export BACKUP=/run/media/$USER/[NAME_OR_UUID_BACKUP_DRIVE]/@home/$USER/
 
 # system tweaks
 ## label user additions to ~/.bashrc
@@ -9,7 +11,7 @@ echo "" && echo '# user additions' >> ~/.bashrc
 ```
  
 ## turn of dnf-makecache.timer
-This module updates metadata to speed up dnf commands. 
+This module periodically updates metadata in the background to speed up the runtime of dnf commands. 
 
 Turn it off to avoid unecessary bandwidth use at bad times.
  
@@ -34,7 +36,7 @@ cat /etc/dnf/dnf.conf
 ```
 
 # nvidia
-If you have an nvida graphics card, unccomment the following:
+If you have an nvida graphics card, uncomment and run the following:
 
 ```
 #modinfo -F version nvidia
@@ -82,6 +84,8 @@ sudo nano /etc/fstab
 # UUID=C17B-722D                            /boot/efi               vfat    umask=0077,shortname=winnt 0 2
 # UUID=47faf958-b80a-43e1-a36f-ca5a932474f7 /home                   btrfs   subvol=home,x-systemd.device-timeout=0,ssd,noatime,space_cache=v2,commit=120,compress=zstd,discard=async 0 0
 # UUID=47faf958-b80a-43e1-a36f-ca5a932474f7 /btrfs_pool             btrfs   subvolid=5,x-systemd.device-timeout=0,ssd,noatime,space_cache=v2,commit=120,compress=zstd,discard=async 0 0
+```
+```
 sudo mkdir -p /btrfs_pool
 sudo mount -a
 ```
@@ -128,10 +132,10 @@ sudo dnf install -y gnome-shell-extension-appindicator
 
 In Gnome Tweaks make the following changes:
 
--  Disable “Suspend when laptop lid is closed” in General
--  Disable “Activities Overview Hot Corner” in Top Bar
--  Enable “Weekday” and “Date” in “Top Bar”
--  Enable Battery Percentage (also possible in Gnome Settings - Power)
+- Disable “Suspend when laptop lid is closed” in General
+- Disable “Activities Overview Hot Corner” in Top Bar
+- Enable “Weekday” and “Date” in “Top Bar”
+- Enable Battery Percentage (also possible in Gnome Settings - Power)
 - Check Autostart programs
 
 # Pop theme
@@ -304,8 +308,8 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto'
 fi
 ```
-
-# Additional Repositories
+# Repos, languages, libraries, version managers, etc.
+## Additional Repositories
 Enable third party repositories by going into Software -> Software Repositories -> Third Party Repositories -> Enable All.
 
 Go through the list and enable all the repositories I think I need such as RPM Fusion NVIDIA Driver.
@@ -317,7 +321,7 @@ sudo dnf install -y  https://download1.rpmfusion.org/free/fedora/rpmfusion-free-
 sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 ```
 
-## To enable the RPM Fusion free and nonfree repositories, run:
+### To enable the RPM Fusion free and nonfree repositories, run:
 ```
 sudo dnf upgrade --refresh
 sudo dnf groupupdate core
@@ -327,7 +331,7 @@ sudo dnf install -y dnf-plugins-core
 
 Checkout `sudo dnf grouplist -v` to see available groups you might be interested in.
 
-## Flatpak support
+### Flatpak support
 Flatpak is installed by default on Fedora Workstation, but one needs to enable the Flathub store:
 
 ```
@@ -335,7 +339,7 @@ flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flat
 flatpak update
 ```
 
-## Snap support
+### Snap support
 Enabling snap support boils down to running the following commands:
 
 ```
@@ -344,11 +348,23 @@ sudo ln -s /var/lib/snapd/snap /snap # for classic snap support
 sudo reboot now
 ```
 
+# Security
+## SSH Public/Private Keys
+## Create SSH Group For AllowGroups
+## Secure /etc/ssh/sshd_config
+## Remove Short Diffie-Hellman Keys
+## 2FA/MFA for SSH
+## Limit Who Can Use sudo
+## Limit Who Can Use su
+
 # Restore from Backup
-I mount my LUKS encrypted backup storage drive using nautilus (simply click on it in the file manager). Then let’s use rsync to copy over my files and important configuration scripts:
+I mount my LUKS encrypted backup storage drive using nautilus (simply click on it in the file manager).
+
+Then let’s use rsync to copy over my files and important configuration scripts:
 
 ```
-export BACKUP=/run/media/$USER/NAME_OR_UUID_BACKUP_DRIVE/@home/$USER/
+# this enviroment variable is replaced by the one at the start of the config
+#export BACKUP=/run/media/$USER/NAME_OR_UUID_BACKUP_DRIVE/@home/$USER/
 sudo rsync -avuP $BACKUP/Desktop ~/
 sudo rsync -avuP $BACKUP/Documents ~/
 sudo rsync -avuP $BACKUP/Downloads ~/
@@ -403,6 +419,13 @@ sudo dnf install ffmpeg-libs
 ```
 
 # Apps
+## CLI
+### starship (via dnf) - shell prompt customization
+### tldr.sh (via npm) - shorter man pages
+### thefuck (via pip) - command corrector
+### fzf (via dnf) - fuzzy finder
+
+
 ## Browser
 Firefox
 
@@ -591,10 +614,15 @@ EOF
 
 Note that this also adds a shortcut to the menu.
 ### Torrent - Transmission
+
+```
 sudo dnf -y install transmission
+```
 
 ## Coding
-git and git-lfs are very important tools for me; as a GUI I like to use GitKraken:
+
+### git, git-lfs, and gitkraken
+git and git-lfs are very useful tools for me; as a GUI I have been experimenting with GitKraken:
 
 ```
 sudo dnf install -y git git-lfs
@@ -608,37 +636,112 @@ Open GitKraken and set up Accounts and Settings (or restore from Backup see abov
 
 Note that for the flatpak version, one needs to add the following Custom Terminal Command: `flatpak-spawn --host gnome-terminal %d` to be able to open the repository quickly in the terminal.
 
-### install asdf version manager
+
+### asdf - 'universal' version manager 
+asdf is a 'universal' tool version manager.
+
+It is similar to nvm (node version manager), but for many languages and/or tools.
+```
+dnf install curl git
 git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.1
+```
+
+##### OPTIONAL (already present in ~/.bashrc from chezmoi)
+```
 echo '# initialize asdf' >> ~/.bashrc && '. "$HOME/.asdf/asdf.sh"' >> ~/.bashrc
 echo '# initialize asdf autocompletions' >> ~/.bashrc && '. "$HOME/.asdf/completions/asdf.bash"' >> ~/.bashrc
 
-### python
-### install dependencies
+```
+
+I want to install chezmoi for dotfile management, python for pip/pipx, nodejs for npm, rust for cargo, and R (rlang) for rstudio/rmarkdown
+
+First we install the dependencies, install/configure with asdf, and then set global version to latest.
+
+##### Python:
+```
 sudo dnf groupinstall "Development Tools"
-sudo dnf install python3-devel openssl-devel zlib-devel bzip2-devel sqlite-devel libffi-devel
-### install python via asdf
+sudo dnf install make gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel libuuid-devel gdbm-devel libnsl2-devel
+asdf plugin add python && asdf install python latest && asdf global python latest
+```
+##### pipx
+install and run isolated python enviroments for packages
+
+```
+python3 -m pip install --user pipx
+python3 -m pipx ensurepath
+```
+
+#### Nodejs:
+``` 
+# python/pip is handled via asdf
+#sudo dnf install python3 gcc-c++ make python3-pip
+sudo dnf install gcc-c++ make
+asdf plugin add nodejs && asdf install nodejs latest && asdf global nodejs latest
+```
+
+#### Rust (for cargo)
+```
+asdf plugin add rust && asdf install rust latest && asdf global rust latest
+```
+
+#### R (rlang -  rstudio/rmarkdown)
+```
+asdf plugin add rlang && asdf install rlang latest && asdf global rlang latest
+sudo dnf install -y openblas
+```
+
+#### chezmoi - dotfile management
+```
+asdf plugin add chezmoi && asdf install chezmoi latest && asdf global chezmoi latest
+#### one-liner
+chezmoi init --apply https://github.com/$GITHUB_USERNAME/dotfiles.git
+
+#### if you want to check the diff or edit before you apply
+#chezmoi init https://github.com/$GITHUB_USERNAME/dotfiles.git
+#chezmoi diff
+#chezmoi edit $file 
+#chezmoi apply -v
+```
 
 ## Productivity
+
+```
 sudo snap install superproductivity
+```
 
 ## Text-processing
 
-### R
-
-For teaching and data analysis there is nothing better than R and RStudio:
+### RStudio
+For teaching, data analysis, and advanced notetaking there is nothing better than R and RStudio:
 
 ```
-sudo dnf install -y R rstudio-desktop
+sudo dnf install -y rstudio-desktop
 ```
 
 Open rstudio, set it up to your liking.
+
+#### Installing LaTex in RStudio
+Luckily there is a very nice package that was created for the easy installation of LaTeX in RStudio!
+    - Type `install.packages("tinytex")` into the Console and press return to run the code.
+    - After that is complete, type `tinytex::install_tinytex()` into the Console and press return.
+
+For some reason, even after a successful installation, sometimes it shows some error/warning messages at the end.
+
+Ignore them and check whether it works as detailed below.
+
+To check whether it was installed properly:
+1. Go to File -> New File -> RMarkdown…
+2. Then click PDF as the default output option. It will give you example text in the file.
+3. Press the Knit button (with the yarn icon) and name the file whatever you want (Test is always a good option) and put it on your Desktop.
+4. It may take a couple of minutes, but you should have a PDF with the same file name (Test.pdf for example) on your Desktop, if it works.
+5. If it says Error: LaTeX failed to compile, that means the tinytex installation did not work. Make sure you ran both lines
 
 ### Java via Openjdk
 
 Install the default OpenJDK Runtime Environment:
 
 ```
+#asdf plugin add java - optionally install java-asdf plugin 
 sudo dnf install -y java-latest-openjdk
 java -version
 ```
@@ -705,7 +808,9 @@ sudo rpm -i https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore
 
 Zotero is great to keep track of the literature I use in my research and teaching. I install it via a flatpak:
 
+```
 flatpak install -y zotero
+```
 
 Open zotero, log in to account, install extension better-bibtex and sync.
 
@@ -729,30 +834,44 @@ I set the ‘Icon size’ to 18 in the settings of TopIcons Plus, the ‘Tray ho
 
 Skype can be installed either via snap or flatpak. I find the flatpak version works better with the system tray icons:
 
+```
 flatpak install -y skype
+```
 
 Open skype, log in and set up audio and video.
-Zoom
+
+### Zoom
 
 Zoom can be installed either via snap or flatpak. I find the flatpak version works better with the system tray icons:
 
+```
 flatpak install -y zoom
+```
 
 Open zoom, log in and set up audio and video.
+
 ### Signal
+
+```
 flatpak install org.signal.Signal
+```
 
 ## Multimedia
 ### VLC
 
-The best video player:
+One of the best and most extensible cross-platform video players:
 
+```
 sudo dnf install -y vlc
+```
 
 Open it and check whether it works.
-Multimedia Codecs
 
-If you have VLC installed, you should be fine as it has builtin support for all relevant audio and video codecs. In other cases, I have found that the following commands install all required stuff for Audio and Video:
+### Multimedia Codecs
+
+If you have VLC installed, you should be fine as it has built-in support for all relevant audio and video codecs.
+
+In other cases, I have found that the following commands install all required stuff for Audio and Video:
 
 ```
 sudo dnf groupupdate sound-and-video
@@ -789,34 +908,33 @@ sudo snap connect obs-studio:removable-media
 Open OBS and set it up, import your scenes, etc.
 
 #    Gnome Settings
-
-    Set up Wifi, Ethernet and VPN
-    Turn off bluetooth
-    Change wallpaper
-    Automatically delete recent files and trash
-    Turn of screen after 15 min
-    Turn on night mode
-    Add online account for Nextcloud and Fedora
-    Deactivate system sounds, mute mic
-    Turn of suspend, shutdown for power button
-    Turn on natural scrolling for mouse touchpad
-    Go through keyboard shortcuts and adapt, I also add custom ones:
-        xkill on CTRL+ALT+X
-        gnome-terminal on CTRL+ALT+T
-    Change clock to 24h format
-    Display battery as percentage
-    Check your default programs
+- Set up Wifi, Ethernet and VPN
+- Turn off bluetooth
+- Change wallpaper
+- Automatically delete recent files and trash
+- Turn of screen after 15 min
+- Turn on night mode
+- Add online account for Nextcloud and Fedora
+- Deactivate system sounds, mute mic
+- Turn of suspend, shutdown for power button
+- Turn on natural scrolling for mouse touchpad
+- Go through keyboard shortcuts and adapt, I also add custom ones:
+ - xkill on CTRL+ALT+X
+ - gnome-terminal on CTRL+ALT+T
+- Change clock to 24h format
+- Display battery as percentage
+- Check your default programs
 
 #    Other stuff
-    Bookmarks for netdrives: Using CTRL+L in nautilus, I can open the following links inside nautilus and add bookmarks to these drives for easy access:
-        university netdrive: davs://w_muts01@wiwi-webdav.uni-muenster.de/
-        university cluster sftp://w_muts01@palma2c.uni-muenster.de
-        personal homepage sftp://mutschler.eu
-    Reorder Favorites: I like to reorder the favorites on the gnome launcher (when one hits the SUPER) key
-    Go through all programs: Hit META+A and go through all programs, decide whether you need them or uninstall these
-    Check autostart programs in Gnome Tweaks
-    In the file manager preferences I enable “Sort folders before files
-    Click on the clock and set the location for your weather forecast
+- Bookmarks for netdrives: Using CTRL+L in nautilus, I can open the following links inside nautilus and add bookmarks to these drives for easy access:
+ - university netdrive: davs://w_muts01@wiwi-webdav.uni-muenster.de/
+ - university cluster: sftp://w_muts01@palma2c.uni-muenster.de
+ - personal homepage: sftp://mutschler.eu
+- Reorder Favorites: I like to reorder the favorites on the gnome launcher (when one hits the SUPER) key
+- Go through all programs: Hit META+A and go through all programs, decide whether you need them or uninstall these
+- Check autostart programs in Gnome Tweaks
+- In the file manager preferences I enable “Sort folders before files
+- Click on the clock and set the location for your weather forecast
 
 
 
