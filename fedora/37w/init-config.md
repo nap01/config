@@ -2,18 +2,18 @@
 
 This is a procedure document and bash script to configure Fedora 37 Workstation.
 
-## Enviroment Variables (a.k.a. Script Settings)
+## Environment Variables (a.k.a. Script Settings)
 
 ```bash
 export HOSTNAME="fedora"
-export USERNAME="aidan"
+export USERNAME="nap01"
 export GITHUB_USERNAME="nap01" 
 export BACKUP=/run/media/$USER/[NAME_OR_UUID_BACKUP_DRIVE]/@home/$USER/
 ```
 
 ## system tweaks
 
-### Security
+### Security //TODO
 
 #### SSH Public/Private Keys
 
@@ -49,7 +49,7 @@ echo "" && echo '##### start of user additions #####' >> ~/.bashrc
 
 This module periodically updates metadata in the background to speed up the runtime of dnf commands.
 
-Turn it off to avoid unecessary bandwidth use at bad times.
+Turn it off to avoid unnecessary bandwidth use at bad times.
 
 ```bash
 systemctl disable dnf-makecache.timer
@@ -414,7 +414,7 @@ I mount my LUKS encrypted backup storage drive using nautilus (simply click on i
 Then let’s use rsync to copy over my files and important configuration scripts:
 
 ```bash
-# this enviroment variable is replaced by the one at the start of the config
+# this environment variable is replaced by the one at the start of the config
 #export BACKUP=/run/media/$USER/NAME_OR_UUID_BACKUP_DRIVE/@home/$USER/
 sudo rsync -avuP $BACKUP/Desktop ~/
 sudo rsync -avuP $BACKUP/Documents ~/
@@ -471,7 +471,7 @@ This one is needed to watch youtube videos
 sudo dnf install ffmpeg-libs 
 ```
 
-## Apps
+## Apps //TODO
 
 ### CLI
 
@@ -594,9 +594,9 @@ sudo dnf install -y nextcloud-client nextcloud-client-nautilus
 
 Open Nextcloud and set it up. Recheck options and note to ignore hidden files once the first folder sync is set up.
 
-I get two anoying issues with Nextcloud, which will probably be fixed in the future. For now the following works for me:
+I get two annoying issues with Nextcloud, which will probably be fixed in the future. For now the following works for me:
 
-If you have many subfolders (which I do), there are not enough inotify-watches and Nextcloud does not sync instantenously but only periodically.
+If you have many subfolders (which I do), there are not enough inotify-watches and Nextcloud does not sync instantaneously but only periodically.
 
 This can be solved by:
 
@@ -729,7 +729,7 @@ asdf plugin add python && asdf install python latest && asdf global python lates
 
 ##### pipx
 
-install and run isolated python enviroments for packages
+install and run isolated python environments for packages
 
 ```bash
 python3 -m pip install --user pipx
@@ -979,6 +979,25 @@ sudo snap connect obs-studio:removable-media
 ```
 
 Open OBS and set it up, import your scenes, etc.
+
+### Applications that still need instructions written //TODO
+
+- xwmx/nb
+- wustho/epr
+- sunsations/SpeedRead
+- xtyrrell/undollar
+- mptre/yank
+
+- vscode
+  - VSC-Essentials
+  - Markdown
+  - Bash
+    - Shellman
+    - Shellcheck
+    - Shell Script Language Basics
+    - shell-format
+    - bash debug
+    - indent-rainbow
 
 ## Gnome Settings
 
