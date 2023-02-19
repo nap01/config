@@ -2,7 +2,7 @@
 
 This is a procedure document and bash script to configure Fedora 37 Workstation.
 
-## Environment Variables (a.k.a. Script Settings)
+## 0 – Environment Variables (a.k.a. Script Settings)
 
 ```bash
 export HOSTNAME="fedora"
@@ -11,17 +11,17 @@ export GITHUB_USERNAME="nap01"
 export BACKUP=/run/media/$USER/[NAME_OR_UUID_BACKUP_DRIVE]/@home/$USER/
 ```
 
-## system tweaks
+## 1 – system tweaks
 
-### Security //TODO
+### 1.1 – Security //TODO
 
-#### SSH Public/Private Keys
+#### 1.1.1 – SSH Public/Private Keys
 
 ```bash
-ssh-keygen -t ed25519
+ssh-keygen -t ed25519 -c "$USERNAME@$HOSTNAME - Primary Key"
 ```
 
-#### Create SSH Group For AllowGroups
+#### 1.1.2 – Create SSH Group For AllowGroups
 
 ```bash
 sudo groupadd sshusers
@@ -29,23 +29,23 @@ sudo groupadd sshusers
 sudo usermod -a -G sshusers $USERNAME
 ```
 
-#### Secure /etc/ssh/sshd_config
+#### 1.1.3 – Secure /etc/ssh/sshd_config
 
-#### Remove Short Diffie-Hellman Keys
+#### 1.1.4 –  Remove Short Diffie-Hellman Keys
 
-#### 2FA/MFA for SSH
+#### 1.1.5 – 2FA/MFA for SSH
 
-#### Limit Who Can Use sudo
+#### 1.1.6 – Limit Who Can Use sudo
 
-#### Limit Who Can Use su
+#### 1.1.7 – Limit Who Can Use su
 
-### label start of user additions to ~/.bashrc
+### 1.2 – label start of user additions to ~/.bashrc
 
 ```bash
 echo "" && echo '##### start of user additions #####' >> ~/.bashrc
 ```
 
-### turn of dnf-makecache.timer
+### 1.3 – turn of dnf-makecache.timer
 
 This module periodically updates metadata in the background to speed up the runtime of dnf commands.
 
@@ -55,7 +55,7 @@ Turn it off to avoid unnecessary bandwidth use at bad times.
 systemctl disable dnf-makecache.timer
 ```
 
-### speed up dnf
+### 1.4 – speed up dnf
 
 ```bash
 echo 'fastestmirror=1' | sudo tee -a /etc/dnf/dnf.conf
@@ -64,18 +64,19 @@ echo 'deltarpm=true' | sudo tee -a /etc/dnf/dnf.conf
 cat /etc/dnf/dnf.conf
 ```
 
-## graphics
+## 2 – Graphics
 
-### wayland or xorg
+### 2.1 – Wayland or Xorg
+The default in Fedora 37 Workstation is Wayland, edit `/etc/gd/custom.conf` and ensure the following settings are present in order to enable Xorg as the new default:
 
 ```bash
-# sudo nano /etc/gdm/custom.conf
+sudo nano /etc/gdm/custom.conf
 # [daemon]
 # WaylandEnable=false
 # DefaultSession=gnome-xorg.desktop
 ```
 
-### nvidia
+### 2.2 – nvidia
 
 If you have an nvida graphics card, uncomment and run the following:
 
@@ -90,7 +91,7 @@ If you have an nvida graphics card, uncomment and run the following:
 #modinfo -F version nvidia
 ```
 
-## set hostname
+## 3 – set hostname
 
 The following sets the hostname of the system:
 
@@ -98,7 +99,7 @@ The following sets the hostname of the system:
 hostnamectl set-hostname $HOSTNAME
 ```
 
-## check locales
+## 4 – check locales
 
 If things look wrong, see the help file on the two commands or change locales and timezone in Gnome-Settings.
 
@@ -107,7 +108,7 @@ localectl status
 timedatectl
 ```
 
-## btrfs filesystem optimizations
+## 5 – btrfs filesystem optimizations
 
 Fedora has not optimized the mount options for btrfs yet. I have found that there is some general agreement on the following mount options if you are on a SSD or NVME:
 
@@ -153,7 +154,7 @@ As both fstrim and discard=async mount option can peacefully co-exist, I also en
 sudo systemctl enable fstrim.timer
 ```
 
-## Install updates and reboot
+## 6 – Install updates and reboot
 
 ```bash
 sudo dnf upgrade --refresh
@@ -166,7 +167,7 @@ sudo fwupdmgr update
 sudo reboot now
 ```
 
-## Gnome Extensions and Tweaks
+## 7 – Gnome Extensions and Tweaks
 
 Install the extensions app, Gnome Tweaks, and some extensions:
 
@@ -183,11 +184,11 @@ In Gnome Tweaks make the following changes:
 - Enable Battery Percentage (also possible in Gnome Settings - Power)
 - Check Autostart programs
 
-## Pop theme
+## 8 – Pop theme
 
 I love the experience and theming of Gnome in Pop!_OS, so I make Fedora look and behave similarly.
 
-### Install Pop-Shell Tiling Extension
+### 8.1 – Install Pop-Shell Tiling Extension
 
 ```bash
 sudo dnf install -y gnome-shell-extension-pop-shell
@@ -202,7 +203,7 @@ Note that this will overwrite several Keyboard shortcuts, which is for me a good
 
 If you want to be able to view these shortcuts in the icon in the tray, run the following:
 
-### Pop shell keyboard shortcuts
+### 8.2 – Pop shell keyboard shortcuts
 
 ```bash
 sudo dnf install -y make cargo rust gtk3-devel
@@ -213,7 +214,7 @@ sudo make install
 pop-shell-shortcuts
 ```
 
-### Pop GTK theme
+### 8.3 – Pop GTK theme
 
 The following installs the Pop!_OS GTK theme:
 
@@ -230,7 +231,7 @@ sudo ninja install
 gsettings set org.gnome.desktop.interface gtk-theme "Pop"
 ```
 
-### Pop icon theme
+### 8.4 – Pop icon theme
 
 The following installs the Pop!_OS icon theme:
 
@@ -246,7 +247,7 @@ gsettings set org.gnome.desktop.interface icon-theme "Pop"
 gsettings set org.gnome.desktop.interface cursor-theme "Pop"
 ```
 
-### Pop fonts
+### 8.5 – Pop fonts
 
 For fonts, install via dnf
 
@@ -264,7 +265,7 @@ Then go into Gnome Tweaks and make the following changes in Fonts:
 - Antialiasing: Standard (greyscale)
 - Scaling Factor: 1.00
 
-### Pop Gnome Terminal Theme
+### 8.6 – Pop Gnome Terminal Theme
 
 Open gnome-terminal, go to Preferences and change the Theme variant to Default in the Global tab.
 
@@ -362,9 +363,9 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 ```
 
-## Repos, languages, libraries, version managers, etc
+## 9 – Repos, languages, libraries, version managers, etc
 
-### Additional Repositories
+### 9.1 – Additional Repositories
 
 Enable third party repositories by going into Software -> Software Repositories -> Third Party Repositories -> Enable All.
 
@@ -377,7 +378,7 @@ sudo dnf install -y  https://download1.rpmfusion.org/free/fedora/rpmfusion-free-
 sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 ```
 
-#### To enable the RPM Fusion free and nonfree repositories, run
+#### 9.1.1 – To enable the RPM Fusion free and nonfree repositories, run
 
 ```bash
 sudo dnf upgrade --refresh
@@ -388,7 +389,7 @@ sudo dnf install -y dnf-plugins-core
 
 Checkout `sudo dnf grouplist -v` to see available groups you might be interested in.
 
-#### Flatpak support
+#### 9.1.2 – Flatpak support
 
 Flatpak is installed by default on Fedora Workstation, but one needs to enable the Flathub store:
 
@@ -397,7 +398,7 @@ flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flat
 flatpak update
 ```
 
-#### Snap support
+#### 9.1.3 – Snap support
 
 Enabling snap support boils down to running the following commands:
 
@@ -407,7 +408,7 @@ sudo ln -s /var/lib/snapd/snap /snap # for classic snap support
 sudo reboot now
 ```
 
-## Restore from Backup
+## 10 – Restore from Backup
 
 I mount my LUKS encrypted backup storage drive using nautilus (simply click on it in the file manager).
 
@@ -443,7 +444,7 @@ sudo rsync -avuP $BACKUP/.matlab ~/
 sudo chown -R $USER:$USER /home/$USER # make sure I own everything
 ```
 
-## SSH keys
+## 11 – SSH keys
 
 If I want to create a new SSH key, I run e.g.:
 
@@ -463,7 +464,7 @@ ssh-add ~/.ssh/id_ed25519
 
 Don’t forget to add your public key to GitHub, Gitlab, Servers, etc.
 
-## Codecs and Libraries
+## 12 – Codecs and Libraries
 
 This one is needed to watch youtube videos
 
@@ -471,21 +472,21 @@ This one is needed to watch youtube videos
 sudo dnf install ffmpeg-libs 
 ```
 
-## Apps //TODO
+## 13 – Apps //TODO
 
-### CLI
+### 13.1 – CLI
 
-#### starship (via dnf) - shell prompt customization
+#### 13.1.1 – starship (via dnf) - shell prompt customization
 
-#### tldr.sh (via npm) - shorter man pages
+#### 13.1.2 – tldr.sh (via npm) - shorter man pages
 
-#### thefuck (via pip) - command corrector
+#### 13.1.3 – thefuck (via pip) - command corrector
 
-#### fzf (via dnf) - fuzzy finder
+#### 13.1.4 – fzf (via dnf) - fuzzy finder
 
-### Browser
+### 13.2 – Browser
 
-#### Firefox
+#### 13.2.1 – Firefox
 
 I used to use Firefox for almost all of my browsing which is installed by default with the following:
 
@@ -506,29 +507,12 @@ cd /home/$USER/fedora/firefox-gnome-theme
 ./scripts/install.sh
 ```
 
-#### Vivaldi
-
-I am in the process of switching to Vivaldi:
-
-```bash
-sudo dnf install -y dnf-utils
-sudo dnf config-manager --add-repo https://repo.vivaldi.com/archive/vivaldi-fedora.repo
-sudo dnf install -y vivaldi-stable
-
-```
-
-I use the following Extensions installable from the Chrome store:
-
-- Bitwarden
-- GNOME Shell-Integration
-- uBlock Origin
-
-#### Google Chrome
+#### 13.2.2 – Google Chrome
 
 If I ever need Google Chrome, then I enable the repo in the software manager and install it via the software shop.
 Profile
 
-#### Profile-sync-daemon
+#### 13.2.3 – Profile-sync-daemon
 
 This neat little utility improves your browsing experience:
 
@@ -544,9 +528,9 @@ systemctl --user status psd.service
 psd preview
 ```
 
-### System utilities
+### 13.3 – System utilities
 
-#### Flatseal
+#### 13.3.1 – Flatseal
 
 Flatseal is a great tool to check or change the permissions of your flatpaks:
 
@@ -554,9 +538,10 @@ Flatseal is a great tool to check or change the permissions of your flatpaks:
 flatpak install -y flatseal
 ```
 
-#### Timeshift
+#### 13.3.2 – Timeshift //TODO
+[FIller Text]
 
-#### Virtual machines: Quickemu and other stuff
+#### 13.3.3 – Virtual machines: Quickemu and other stuff
 
 Fedora by default has KVM, Qemu, virt-manager and gnome-boxes set up; however, I have found a much easier tool for most virtualization tasks: Quickqemu, a wrapper for Qemu that we will load into our path to ab able to run it's scripts anywhere:
 
@@ -572,9 +557,9 @@ ln -s /home/$USER/fedora/quickemu/quickemu /home/$USER/.local/bin/quickemu
 
 I keep the conf files for my virtual machines on an external SSD.
 
-### Networking
+### 13.4 – Networking
 
-#### Dropbox
+#### 13.4.1 – Dropbox
 
 Unfortunately, I still have some use case for Dropbox:
 
@@ -584,7 +569,7 @@ sudo dnf install -y dropbox nautilus-dropbox
 
 Open dropbox and set it up, check options.
 
-#### Nextcloud
+#### 13.4.2 – Nextcloud
 
 I have all my files synced to my own Nextcloud server, so I need the sync client:
 
@@ -638,7 +623,7 @@ Alternatively, you might install TopIcons Plus Gnome Extension in addition to th
 
 I set the ‘Icon size’ to 18 in the settings of TopIcons Plus, the ‘Tray horizontal alignment’ to ‘Right’ and ‘Tray offset’ to 1, see also Mattermost.
 
-#### OpenConnect and OpenVPN
+#### 13.4.3 – OpenConnect and OpenVPN
 
 ```bash
 sudo dnf install -y openconnect NetworkManager-openconnect NetworkManager-openconnect-gnome
@@ -647,7 +632,7 @@ sudo dnf install -y openvpn NetworkManager-openvpn NetworkManager-openvpn-gnome
 
 Go to Settings-Network-VPN and add openconnect for my university VPN and openvpn for ProtonVPN, check connections.
 
-#### Remote desktop
+#### 13.4.4 – Remote desktop
 
 To access a remote Windows desktop session:
 
@@ -672,15 +657,15 @@ EOF
 
 Note that this also adds a shortcut to the menu.
 
-#### Torrent - Transmission
+#### 13.4.5 – Torrent - Transmission
 
 ```bash
 sudo dnf -y install transmission
 ```
 
-### Coding
+### 13.5 – Coding
 
-#### git, git-lfs, and gitkraken
+#### 13.5.1 – git, git-lfs, and gitkraken
 
 git and git-lfs are very useful tools for me; as a GUI I have been experimenting with GitKraken:
 
@@ -696,9 +681,9 @@ Open GitKraken and set up Accounts and Settings (or restore from Backup see abov
 
 Note that for the flatpak version, one needs to add the following Custom Terminal Command: `flatpak-spawn --host gnome-terminal %d` to be able to open the repository quickly in the terminal.
 
-#### asdf - 'universal' version manager
+#### 13.5.2 – rtx/asdf - 'universal' version manager
 
-Asdf is a 'universal' tool version manager.
+asdf is a 'universal' tool version manager. rtx is a wrapper for asdf that fixes some of the quirks of asdf, primarily doing away with the use of "shims" and fixing some odd user interfaces choices.
 
 It is similar to nvm (node version manager), but for many languages and/or tools.
 
@@ -707,7 +692,7 @@ dnf install curl git
 git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.1
 ```
 
-##### OPTIONAL (already present in ~/.bashrc from chezmoi)
+##### 13.5.2B – OPTIONAL (already present in ~/.bashrc from chezmoi)
 
 ```bash
 echo '# initialize asdf' >> ~/.bashrc && '. "$HOME/.asdf/asdf.sh"' >> ~/.bashrc
@@ -719,7 +704,7 @@ I want to install chezmoi for dotfile management, python for pip/pipx, nodejs fo
 
 First we install the dependencies, install/configure with asdf, and then set global version to latest.
 
-##### Python
+##### 13.5.3 – Python
 
 ```bash
 sudo dnf groupinstall "Development Tools"
@@ -727,7 +712,7 @@ sudo dnf install make gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sql
 asdf plugin add python && asdf install python latest && asdf global python latest
 ```
 
-##### pipx
+##### 13.5.4 – pipx
 
 install and run isolated python environments for packages
 
@@ -736,7 +721,7 @@ python3 -m pip install --user pipx
 python3 -m pipx ensurepath
 ```
 
-##### Nodejs
+##### 13.5.5 – Nodejs
 
 ```bash
 # python/pip is handled via asdf
@@ -745,20 +730,30 @@ sudo dnf install gcc-c++ make
 asdf plugin add nodejs && asdf install nodejs latest && asdf global nodejs latest
 ```
 
-##### Rust (for cargo)
+##### 13.5.6 – Rust (for cargo)
 
 ```bash
 asdf plugin add rust && asdf install rust latest && asdf global rust latest
 ```
 
-##### R (rlang -  rstudio/rmarkdown)
+##### 13.5.7 – R (rlang -  rstudio/rmarkdown)
 
 ```bash
 asdf plugin add rlang && asdf install rlang latest && asdf global rlang latest
 sudo dnf install -y openblas
 ```
 
-##### chezmoi - dotfile management
+##### 13.5.8 – Java via Openjdk
+
+Install the default OpenJDK Runtime Environment:
+
+```bash
+#asdf plugin add java #   optionally install java-asdf plugin 
+sudo dnf install -y java-latest-openjdk
+java -version
+```
+
+##### 13.5.9 – chezmoi - dotfile management
 
 ```bash
 asdf plugin add chezmoi && asdf install chezmoi latest && asdf global chezmoi latest
@@ -772,15 +767,15 @@ chezmoi init --apply https://github.com/$GITHUB_USERNAME/dotfiles.git
 #chezmoi apply -v
 ```
 
-### Productivity
+### 13.6 – Productivity
 
 ```bash
 sudo snap install superproductivity
 ```
 
-### Text-processing
+### 13.7 – Text-processing
 
-#### RStudio
+#### 13.7.1 – RStudio
 
 For teaching, data analysis, and advanced notetaking there is nothing better than R and RStudio:
 
@@ -790,7 +785,7 @@ sudo dnf install -y rstudio-desktop
 
 Open rstudio, set it up to your liking.
 
-##### Installing LaTex in RStudio
+##### 13.7.1.1 – Installing LaTex in RStudio
 
 Luckily there is a very nice package that was created for the easy installation of LaTeX in RStudio!
     - Type `install.packages("tinytex")` into the Console and press return to run the code.
@@ -808,17 +803,7 @@ To check whether it was installed properly:
 4. It may take a couple of minutes, but you should have a PDF with the same file name (Test.pdf for example) on your Desktop, if it works.
 5. If it says Error: LaTeX failed to compile, that means the tinytex installation did not work. Make sure you ran both lines
 
-#### Java via Openjdk
-
-Install the default OpenJDK Runtime Environment:
-
-```bash
-#asdf plugin add java #   optionally install java-asdf plugin 
-sudo dnf install -y java-latest-openjdk
-java -version
-```
-
-#### Visual Studio Code
+#### 13.7.2 – Visual Studio Code
 
 I am in the process of transitioning all my coding to Visual Studio code:
 
@@ -839,7 +824,7 @@ sysctl -p
 
 The same issue happens with Nextcloud.
 
-#### Hugo
+#### 13.7.3 – Hugo
 
 My website uses the Academic Template for Hugo, which is based on Go. As I need the extended version I don’t install hugo from the repo, but instead download the official release binary from Github:
 
@@ -856,7 +841,7 @@ mv hugo ~/.local/bin/hugo
 hugo version
 ```
 
-#### Latex related packages
+#### 13.7.4 – Latex related packages
 
 I write all my papers and presentations with Latex using either TexStudio or VScode as editors:
 
@@ -867,7 +852,7 @@ sudo dnf install -y texstudio
 
 Open texstudio and set it up.
 
-#### Microsoft Fonts
+#### 13.7.5 – Microsoft Fonts
 
 Sometimes I get documents which require fonts from Microsoft:
 
@@ -876,7 +861,7 @@ sudo dnf install -y curl cabextract xorg-x11-font-utils fontconfig
 sudo rpm -i https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 ```
 
-#### Zotero
+#### 13.7.6 – Zotero
 
 Zotero is great to keep track of the literature I use in my research and teaching. I install it via a flatpak:
 
@@ -886,9 +871,9 @@ flatpak install -y zotero
 
 Open zotero, log in to account, install extension better-bibtex and sync.
 
-### Communication
+### 13.8 – Communication
 
-#### Mattermost
+#### 13.8.1 – Mattermost
 
 Mattermost, an open-source slack-alternative, can be installed via flatpak:
 
@@ -902,17 +887,7 @@ However, what works for me is to additionally install the TopIcons Plus Gnome Ex
 
 I set the ‘Icon size’ to 18 in the settings of TopIcons Plus, the ‘Tray horizontal alignment’ to ‘Right’ and ‘Tray offset’ to 1.
 
-#### Skype
-
-Skype can be installed either via snap or flatpak. I find the flatpak version works better with the system tray icons:
-
-```bash
-flatpak install -y skype
-```
-
-Open skype, log in and set up audio and video.
-
-#### Zoom
+#### 13.8.2 – Zoom
 
 Zoom can be installed either via snap or flatpak. I find the flatpak version works better with the system tray icons:
 
@@ -922,15 +897,15 @@ flatpak install -y zoom
 
 Open zoom, log in and set up audio and video.
 
-#### Signal
+#### 13.8.3 – Signal
 
 ```bash
 flatpak install org.signal.Signal
 ```
 
-### Multimedia
+### 13.9 – Multimedia
 
-#### VLC
+#### 13.9.1 – VLC
 
 One of the best and most extensible cross-platform video players:
 
@@ -940,7 +915,7 @@ sudo dnf install -y vlc
 
 Open it and check whether it works.
 
-#### Multimedia Codecs
+#### 13.9.2 – Multimedia Codecs
 
 If you have VLC installed, you should be fine as it has built-in support for all relevant audio and video codecs.
 
@@ -964,7 +939,7 @@ sudo dnf install -y gstreamer1-plugin-openh264 mozilla-openh264
 Afterwards you need to open Firefox, go to menu → Add-ons → Plugins and enable OpenH264 plugin.
 You can do a simple test whether your H.264 works in RTC on this page (check Require H.264 video).
 
-#### OBS
+#### 13.9.3 – OBS
 
 I like that the snap version has all popular extensions included, so I use it:
 
@@ -980,7 +955,7 @@ sudo snap connect obs-studio:removable-media
 
 Open OBS and set it up, import your scenes, etc.
 
-### Applications that still need instructions written //TODO
+### 13.10 – Applications that still need instructions written //TODO
 
 - xwmx/nb
 - wustho/epr
@@ -999,7 +974,7 @@ Open OBS and set it up, import your scenes, etc.
     - bash debug
     - indent-rainbow
 
-## Gnome Settings
+## 14 – Gnome Settings
 
 - Set up Wifi, Ethernet and VPN
 - Turn off bluetooth
@@ -1018,7 +993,7 @@ Open OBS and set it up, import your scenes, etc.
 - Display battery as percentage
 - Check your default programs
 
-## Other stuff
+## 15 – Other stuff
 
 - Bookmarks for netdrives: Using CTRL+L in nautilus, I can open the following links inside nautilus and add bookmarks to these drives for easy access:
 - university netdrive: davs://w_muts01@wiwi-webdav.uni-muenster.de/
