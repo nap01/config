@@ -127,8 +127,6 @@ sudo mv /etc/ssh/moduli.tmp /etc/ssh/moduli
 
 #### 1.1.5 – Limit Who Can Use su
 
-
-
 Create a group:
 
 ```bash
@@ -147,20 +145,19 @@ sudo usermod -a -G suusers user1
 
 #### 1.1.6 – Install/Configure UFW (firewall)
 
-
-
-##### 1.1.6.1 – Install ufw:
+##### 1.1.6.1 – Install ufw
 
 ```bash
 sudo dnf install -y ufw
 ```
 
-##### 1.1.6.2 – Deny all outgoing traffic:
+##### 1.1.6.2 – Deny all outgoing traffic
 
 ```bash
 sudo ufw default deny outgoing comment 'deny all outgoing traffic'
 ```
-##### 1.1.6.2B ALTERNATIVE – Allow all outgoing treffic:
+
+##### 1.1.6.2B ALTERNATIVE – Allow all outgoing treffic
 
 If you are not as paranoid as me, and don't want to deny all outgoing traffic, you can allow it instead:
 
@@ -168,19 +165,19 @@ If you are not as paranoid as me, and don't want to deny all outgoing traffic, y
 sudo ufw default allow outgoing comment 'allow all outgoing traffic'
 ```
 
-##### 1.1.6.3 – Deny all incoming traffic:
+##### 1.1.6.3 – Deny all incoming traffic
 
 ```bash
 sudo ufw default deny incoming comment 'deny all incoming traffic'
 ```
 
-##### 1.1.6.4 – Obviously we want SSH connections in:
+##### 1.1.6.4 – Obviously we want SSH connections in
 
 ```bash
 sudo ufw limit in ssh comment 'allow SSH connections in'
 ```
 
-##### 1.1.6.5 – Allow additional traffic as per your needs.
+##### 1.1.6.5 – Allow additional traffic as per your needs
 
 Some common use-cases:
 
@@ -208,12 +205,14 @@ sudo ufw allow out 68 comment 'allow the DHCP client to update'
 
 *Note: You'll **need** to allow HTTP/HTTPS for installing packages and many other things.*
 
-##### 1.1.6.6 – Start ufw:
+##### 1.1.6.6 – Start ufw
 
 ```bash
 sudo ufw enable
 ```
+
 ##### 1.1.6.7 – Check ufw status
+
 ```bash
 sudo ufw status verbose
 ```
@@ -246,6 +245,7 @@ cat /etc/dnf/dnf.conf
 ## 2 – Graphics
 
 ### 2.1 – Wayland or Xorg
+
 The default in Fedora 37 Workstation is Wayland, edit `/etc/gd/custom.conf` and ensure the following settings are present in order to enable Xorg as the new default:
 
 ```bash
@@ -718,6 +718,7 @@ flatpak install -y flatseal
 ```
 
 #### 13.3.2 – Timeshift //TODO
+
 [FIller Text]
 
 #### 13.3.3 – Virtual machines: Quickemu and other stuff
@@ -1141,8 +1142,7 @@ Open OBS and set it up, import your scenes, etc.
 - sunsations/SpeedRead
 - xtyrrell/undollar
 - mptre/yank
-- 
-
+-
 
 - vscode
   - VSC-Essentials
@@ -1178,8 +1178,8 @@ Open OBS and set it up, import your scenes, etc.
 
 - Bookmarks for netdrives: Using CTRL+L in nautilus, I can open the following links inside nautilus and add bookmarks to these drives for easy access:
 - university netdrive: <davs://w_muts01@wiwi-webdav.uni-muenster.de/>
-- university cluster: <sftp://w_muts01@palma2c.uni-muenster.de>
-- personal homepage: <sftp://mutschler.eu>
+- university cluster: <s<ftp://w_muts01@palma2c.uni-muenster.de>>
+- personal homepage: <s<ftp://mutschler.eu>>
 - Reorder Favorites: I like to reorder the favorites on the gnome launcher (when one hits the SUPER) key
 - Go through all programs: Hit META+A and go through all programs, decide whether you need them or uninstall these
 - Check autostart programs in Gnome Tweaks
