@@ -1,11 +1,11 @@
 # Ubuntu 22.04 Config Script
 
-This is a procedure document and bash script to configure Fedora 37 Workstation.
+This is a procedure document and bash script to configure Ubuntu 22.04.
 
 ## 0 – Environment Variables (a.k.a. Script Settings)
 
 ```bash
-export HOSTNAME="fedora"
+export HOSTNAME="ubuntu"
 export USERNAME="nap01"
 export GITHUB_USERNAME="nap01" 
 export BACKUP=/run/media/$USER/[NAME_OR_UUID_BACKUP_DRIVE]/@home/$USER/
