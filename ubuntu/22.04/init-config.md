@@ -2,7 +2,7 @@
 
 This is a procedure document and bash script to configure Ubuntu 22.04.
 
-## 0 – Environment Variables (a.k.a. Script Settings)
+## Environment Variables (a.k.a. Script Settings)
 
 ```bash
 export HOSTNAME="ubuntu"
@@ -11,7 +11,11 @@ export GITHUB_USERNAME="nap01"
 export BACKUP=/run/media/$USER/[NAME_OR_UUID_BACKUP_DRIVE]/@home/$USER/
 ```
 
-## 1 – system tweaks
+## 0 - Initial Config
+
+### 0.1 - Add non-root user
+
+## 1 – System Tweaks
 
 ### 1.1 – Security //TODO
 
@@ -24,8 +28,7 @@ ssh-keygen -t ed25519 -c "$USERNAME@$HOSTNAME - Primary Key"
 #### 1.1.2 – Create SSH Group For AllowGroups option in /etc/ssh/sshd_config
 
 ```bash
-sudo groupadd sshusers
-
+sudo addgroup
 sudo usermod -a -G sshusers $USERNAME
 ```
 
