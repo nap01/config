@@ -1,13 +1,23 @@
 # Debian Init Script
 
-//TODO DEBIAN INIT README.MD NEEDS TO BE REWRITTEN. /
+For all the commands in the 0 section you will need to replace the variables manually before you run them.
 
-USER is an existing user who has sudo permissions, ideally the user you intend to use daily.
+```bash
+$DEV = /dev/sdb1 
+```
+
+DEV should be the device and partition the init folder is located on, typically a USB drive or SD card.
+
+```bash
+$USER = username
+```
+
+USER is an existing user that has sudo permissions, ideally the user you intend to use daily
 
 ## 0.2 - Mount DEV to /media/USER/usb
 
 ```bash
-sudo mount $DEV /media/$USER/usb
+sudo mount /dev/sda1 /media/$USER/usb
 ```
 
 ## 0.3 - Move init-prep.sh to user home
