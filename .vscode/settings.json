@@ -1,3 +1,13 @@
 {
-    "DockerRun.DisableAutoGenerateConfig": true
+    "workbench.colorTheme": "Low Eye Strain Night Owl",
+    "workbench.preferredDarkColorTheme": "Low Eye Strain Night Owl",
+    "workbench.preferredLightColorTheme": "Low Eye Strain Light Contrast",
+    "workbench.iconTheme": "vscode-icons",
+    "window.autoDetectColorScheme": true,
+    "terminal.integrated.enableBell": true,
+    "terminal.integrated.drawBoldTextInBrightColors": true,
+    "vim.disableExtension": true,
+    "writing-assistant.analyses.equality": false,
+    "writing-assistant.analyses.intensify": true,
+    "writing-assistant.autoAnalyzeOn": "save"
 }
