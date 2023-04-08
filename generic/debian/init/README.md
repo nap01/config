@@ -1,5 +1,7 @@
 # Debian Init Script
 
+########### THIS IS EXTREMELY OUTDATED AND NEEDS TO BE REWRITTEN ASAP ########### //TODO
+
 For all the commands in the 0 section you will need to replace the variables manually before you run them.
 
 ```bash
