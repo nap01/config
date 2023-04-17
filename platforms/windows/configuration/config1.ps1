@@ -41,7 +41,7 @@ winget install Yarn.Yarn
 # IDE
 winget install Microsoft.VisualStudioCode
 winget install RStudio.RStudio.OpenSource
-winget install JetBrains.IntelliJIDEA.Community
+#winget install JetBrains.IntelliJIDEA.Community
 
 # Productivity
 winget install ActivityWatch.ActivityWatch
@@ -55,7 +55,7 @@ winget install Mozilla.Firefox
 winget install PrestonN.FreeTube
 
 # Chat
-winget install Discord.Discord
+#winget install Discord.Discord
 winget install OpenWhisperSystems.Signal
 
 # Audio
@@ -87,5 +87,5 @@ $wc = New-Object System.Net.WebClient
 $wc.DownloadFile($url, $outpath)
 
 ## Step 2: Install
-$args = @("Comma","Separated","Arguments")
+$args = @("Comma", "Separated", "Arguments")
 Start-Process -Filepath "$PSScriptRoot/myexe.exe" -ArgumentList $args
