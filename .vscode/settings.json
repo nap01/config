@@ -1,13 +1,8 @@
 {
-    "workbench.colorTheme": "Low Eye Strain Night Owl",
-    "workbench.preferredDarkColorTheme": "Low Eye Strain Night Owl",
-    "workbench.preferredLightColorTheme": "Low Eye Strain Light Contrast",
-    "workbench.iconTheme": "vscode-icons",
-    "window.autoDetectColorScheme": true,
-    "terminal.integrated.enableBell": true,
-    "terminal.integrated.drawBoldTextInBrightColors": true,
-    "vim.disableExtension": true,
-    "writing-assistant.analyses.equality": false,
-    "writing-assistant.analyses.intensify": true,
-    "writing-assistant.autoAnalyzeOn": "save"
+    "workbench.colorTheme": "GitHub Dark High Contrast",
+    "workbench.preferredDarkColorTheme": "GitHub Dark High Contrast",
+    "workbench.preferredHighContrastColorTheme": "GitHub Dark High Contrast",
+    "workbench.preferredLightColorTheme": "GitHub Light High Contrast",
+    "workbench.preferredHighContrastLightColorTheme": "GitHub Light High Contrast",
+    "workbench.iconTheme": "vscode-icons"
 }
