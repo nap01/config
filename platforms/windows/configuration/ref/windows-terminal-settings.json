@@ -1,0 +1,89 @@
+{
+  "$help": "https://aka.ms/terminal-documentation",
+  "$schema": "https://aka.ms/terminal-profiles-schema",
+  "actions": [
+    {
+      "command": {
+        "action": "copy",
+        "singleLine": false
+      },
+      "keys": "ctrl+c"
+    },
+    {
+      "command": "paste",
+      "keys": "ctrl+v"
+    },
+    {
+      "command": {
+        "action": "newTab"
+      },
+      "keys": "ctrl+t"
+    },
+    {
+      "command": "find",
+      "keys": "ctrl+shift+f"
+    },
+    {
+      "command": {
+        "action": "splitPane",
+        "split": "auto",
+        "splitMode": "duplicate"
+      },
+      "keys": "alt+shift+d"
+    },
+    {
+      "command": {
+        "action": "closeTab"
+      },
+      "keys": "ctrl+w"
+    }
+  ],
+  "copyFormatting": "none",
+  "copyOnSelect": false,
+  "defaultProfile": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
+  "profiles": {
+    "defaults": {
+      "colorScheme": "Horizon",
+      "font": {
+        "face": "CaskaydiaCove Nerd Font Mono",
+        "size": 13
+      },
+      "opacity": 80,
+      "startingDirectory": "%USERPROFILE%/dev"
+    },
+    "list": [
+      {
+        "elevate": true,
+        "guid": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
+        "hidden": false,
+        "name": "PowerShell",
+        "source": "Windows.Terminal.PowershellCore"
+      }
+    ]
+  },
+  "schemes": [
+    {
+      "name": "Horizon",
+      "black": "#0a0a0d",
+      "red": "#E95678",
+      "green": "#29D398",
+      "yellow": "#FAB795",
+      "blue": "#26BBD9",
+      "purple": "#EE64AC",
+      "cyan": "#59E1E3",
+      "white": "#e5e5e5",
+      "brightBlack": "#848484",
+      "brightRed": "#EC6A88",
+      "brightGreen": "#3FDAA4",
+      "brightYellow": "#FBC3A7",
+      "brightBlue": "#3FC4DE",
+      "brightPurple": "#F075B5",
+      "brightCyan": "#6BE4E6",
+      "brightWhite": "#e5e5e5",
+      "background": "#1c1e26",
+      "foreground": "#bdc0c2"
+    }
+  ],
+  "theme": "system",
+  "useAcrylicInTabRow": true
+}

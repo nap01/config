@@ -1,0 +1,18 @@
+1. Install Windows 10 Pro 21H2
+2. Configure offline account "admin"
+3. Disable Windows Security Alerts
+4. Run JDK+Py3+Silverlight_Ninite.exe
+5. Install/Config QOL tweaks:  RLECViewer, Lightbulb, & Autodarkmode
+5. Install NSSM: create services to run RLECViewer on boot & update JDK+Py3+Silverlight_Ninite.exe bi-weekly
+7. Run Windows Updates
+8. Run Tron Script
+9. Install/Config ooshutup10
+10. Install/Config W10Privacy
+11. Install/Config WPD
+12. Run config1.ps1 (winget install)
+13. Run config2.ps1 (choco install)
+14. Run config3.ps1 (git config)
+15. Install gpg4win & generate key
+16. Run git-config.ps1
+17. Renable Windows Security Alerts
+16. Install remaining applications manually: Ableton 11, VBCable, EXIFsort, & photostructure
