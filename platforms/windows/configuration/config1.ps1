@@ -3,6 +3,8 @@ winget install Oracle.VirtualBox
 winget install DiskInternals.LinuxReader
 
 # Utility 
+winget install -e --id NSSM.NSSM
+winget install -e --id AutoHotkey.AutoHotkey
 winget install AntibodySoftware.WizTree
 winget install PeterBClements.QuickPar
 winget install GiorgioTani.PeaZip
